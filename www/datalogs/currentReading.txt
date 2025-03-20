@@ -1,0 +1,1 @@
+<b>Time:</b> 2025/03/20 14:55:39 <br><b>PT100 (1):</b> -222.1℃ &nbsp; 0.397V <br><b>PT100 (2):</b> 210.3℃ &nbsp; 3.325V <br><b>IG:</b> 4.96E-11 Torr &nbsp; 0.440V<br><b>TC2:</b> 2.00E-01 Torr&nbsp; 10.989V

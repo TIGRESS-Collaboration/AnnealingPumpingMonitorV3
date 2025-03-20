@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>GRSPi02, Plots</title>
+        <meta charset="utf-8">
+		<link rel="stylesheet" 
+		href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        
+        <style>
+            .textDiv {
+                display: inline-block;
+            }
+            .pull-right {
+                line-height: 40px;
+            }
+            #backButton {
+                position: relative;
+                top: 30px;
+                left: 30px;
+            }
+                  
+      .checkbox label:after {
+          content: '';
+          display: table;
+          clear: both;
+      }
+
+.checkbox .cr {
+  position: relative;
+  display: inline-block;
+  border: 1px solid #a9a9a9;
+  border-radius: .25em;
+  width: 1.3em;
+  height: 1.3em;
+  float: left;
+  margin-right: .5em;
+}
+
+.checkbox .cr .cr-icon {
+  position: absolute;
+  font-size: .8em;
+  line-height: 0;
+  top: 50%;
+  left: 15%;
+}
+
+.checkbox label input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox label input[type="checkbox"]+.cr>.cr-icon {
+  opacity: 0;
+}
+
+.checkbox label input[type="checkbox"]:checked+.cr>.cr-icon {
+  opacity: 1;
+}
+
+.checkbox label input[type="checkbox"]:disabled+.cr {
+  opacity: .5;
+}
+        </style>
+		<!--<script type="text/javascript"
+			src="node_modules/dygraphs/dygraph-combined-dev.js"></script> -->
+        
+            <script type="text/javascript"
+			src="node_modules/dygraphs/dygraph-combined.js"></script>
+        <script type="text/javascript"
+			src="node_modules/dygraphs/extras/synchronizer.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.7.0/d3.min.js"></script>
+        
+        <script type="text/javascript" src="/node_modules/jquery-csv/src/jquery.csv.min.js"></script>
+        <script src="threeBuckets/largest-triangle-three-buckets.v0.1.0.min.js"></script>
+        
+        <script>
+              $(document).ready(function(){
+        $('#plotConfig').submit(function(){
+          
+          submitPlotConfig();
+          return false;
+        });
+      });
+ 
+            function formSubUpdate() {
+				$.get("action/updateJSON.php", function(data){
+				//alert(JSON.stringify(data));
+				const obj = JSON.parse(data);
+				$("#locDiv").html(obj.location);
+				$("#monDiv").html(obj.monitoring);
+				$("#timeDiv").html(obj.time);
+				//window.setTimeout(formSubUpdate, 10000);
+				});
+			}
+            function fillFormPlotConfig(){
+ 			  $.get("action/getPlotParams.php", function(data){
+					//alert(JSON.stringify(data));
+					const obj = JSON.parse(data);
+         
+					if(obj.PT100 === "PT100"){
+            $("#PT100cBox").prop('checked',true);
+          }
+          if(obj.IG === "IG"){
+            $("#IGcBox").prop('checked',true);
+          }
+          if(obj.TC2 === "TC2"){
+            $("#TC2cBox").prop('checked',true);
+          }
+          if(obj.STDev === "STDev"){
+            $("#STDevcBox").prop('checked',true);
+          }
+				});
+      }
+      
+            function submitPlotConfig(){
+			  $.ajax({
+					type: "POST",
+					url: "action/plotConfig.php",
+					cache: "false",
+					data: $('form#plotConfig').serialize(),
+          success: function(response){
+            if(response == 0) {
+              $("#success-alert").show();
+              setTimeout(function(){
+                $("#success-alert").hide();
+                }, 1500);
+                location.reload();
+            } else {
+                alert("Error saving to file");
+            }
+          },
+          error: function(){
+            alert("Error");
+          }
+				});
+      }
+      
+</script>
+	</head>
+	<body onload="formSubUpdate()">
+        <div class="container">
+            <div class="page-header">
+                       <div class="row">
+           <div class="col-md-10 col-12">
+             <h1>Annealing Monitor</h1>
+           </div>
+           <div class="col-md-2 col-12">
+             <button class="btn btn-default" onclick="window.location.href='index.php';">Back</button>
+           </div>
+         </div>
+                
+                  
+                
+              
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-1 col-12 border-right">
+                  <button class="btn btn-default" data-toggle="modal" data-target="#plotModal" onclick="fillFormPlotConfig();">Options</button>
+                      <div id="plotModal" class="modal" role="dialog">
+        								<div class="modal-dialog modal-lg">
+									        <div class="modal-content">
+										        <div class="modal-header">
+                                <h1>Settings</h1>
+										        </div>
+										        <div class="modal-body">
+                                <form id="plotConfig" name="pConfig" role="form">
+                                  <div class="form-group">
+               											<div class="checkbox">
+                                      <label>
+                                      <input type="checkbox" id="PT100cBox" class="form-check-input" name="PT100" value="PT100">
+                                      <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                      PT100
+                                      </label>
+                                    </div>
+											              <div class="checkbox">
+                                      <label>
+                                      <input type="checkbox" id="IGcBox" class="form-check-input" name="IG" value="IG">
+                                      <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                      IG
+                                      </label>
+                                    </div>
+										                <div class="checkbox">
+                                      <label>
+                                      <input type="checkbox" id="TC2cBox" class="form-check-input" name="TC2" value="TC2">
+                                      <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                      TC2
+                                      </label>
+                                    </div>
+											              <div class="checkbox">
+                                      <label>
+                                      <input type="checkbox" id="STDevcBox" class="form-check-input" name="STDev" value="STDev">
+                                      <span class="cr"><i class="cr-icon glyphicon glyphicon-ok"></i></span>
+                                      STDev
+                                      </label>
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <input type="submit" class="btn btn-primary" id="submit"/>
+                                  </div>
+                                </form>
+                                </div>
+                      										<div class="modal-footer">
+	                                          <button class="btn btn-default" data-dismiss="modal">Close</button>
+								                        </div>
+                                </div>
+                                </div>
+                         </div>
+                </div>
+                <div class="col-md-11 col-12 text-center">
+                    <b>Current Location:</b> <div id="locDiv" class="textDiv"></div><br>
+          	        <b>Currently Monitoring:</b> <div id="monDiv" class="textDiv"></div><br>
+                    <b>Info Last Updated:</b> <div id="timeDiv" class="textDiv"></div>
+                    <div id="spacer" style="height:2em;"></div>
+                    <div id="gdiv" style="width:100%;"></div>
+                    <div id="spacer" style="height:2em;"></div>
+		                <div id="gdiv2" style="width:100%;"></div>
+                    <div id="spacer" style="height:2em;"></div>
+                    <div id="gdiv3" style="width:100%;"></div>
+                    <div id="spacer" style="height:2em;"></div>
+                    <div id="gdiv4" style="width:100%;"></div>
+                </div>
+                
+            </div>
+        </div>
+        <!--
+		<div id="gdiv"
+  			style="width:70em; height:27em;">
+		</div>
+		<div id="spacer" style="height:2em;"></div>
+		<div id="gdiv2"
+			style="width:70em; height:27em;">
+		</div>
+        
+        <div id="spacer" style="height:2em;"></div>
+
+        <div id="gdiv3"
+            style="width:70em; height:27em;">
+        </div>
+        <div id="spacer" style="height:2em;"></div>
+
+        <div id="gdiv4"
+            style="width:70em; height:27em;">
+        </div>
+       <div id="spacer" style="height:2em;"></div>
+        -->
+
+        <script type="text/javascript">
+          var obj;
+          
+          
+        $(document).ready(function(){
+          $.get("action/getPlotParams.php", function(data){
+				    //alert(data);
+            obj = JSON.parse(data);
+            
+            createGraphs(1);                                   
+				  });
+        });
+           
+           function createGraphs(roll) {
+            
+            
+            var g = [];
+
+          if(obj.PT100 === "PT100") {
+            g1 = new Dygraph(
+            document.getElementById("gdiv"),
+             "datalogs/datalog.csv",
+                {
+                title: 'Temperature (RTD1)',
+                ylabel: 'Temperature (C)',
+                legend: false,
+                visibility: [true,false,false,false,false],
+                rollPeriod: roll,
+                showRoller: true
+                }
+            );
+            g.push(g1);
+          } else {
+            $('#gdiv').empty();
+          }
+          if(obj.IG === "IG"){
+            g2 = new Dygraph(
+            document.getElementById("gdiv2"),
+            "datalogs/datalog.csv",
+                {
+                title: 'Pressure (IG)',
+                ylabel: 'Pressure (Torr)',
+                logscale: true,
+                labelsSeparateLines: true,
+                visibility: [false,false,true,false,false],
+                rollPeriod: roll,
+                showRoller: true
+                }
+            );
+            g.push(g2);
+          } else {
+            $('#gdiv2').empty();
+          }
+		
+         if(obj.TC2 === "TC2") {
+	        g3 = new Dygraph(
+		      document.getElementById("gdiv3"),
+		      "datalogs/datalog.csv",
+		        {
+		        title: 'TC2',
+		        ylabel: '(Torr)',
+            logscale: true,
+		        labelsSeperateLines: true,
+		        visibility: [false,false,false,true,false],
+		        rollPeriod: roll,
+		        showRoller: true
+		        }
+	        );
+           g.push(g3);
+         } else {
+           $('#gdiv3').empty();
+         }
+         
+         
+         if(obj.STDev === "STDev") {
+            g4 = new Dygraph(
+		    document.getElementById("gdiv4"),
+		    "datalogs/STDeviation.csv",
+		        {
+		        title: 'STDeviation',
+		        ylabel: 'STD',
+		        labelsSeperateLines: true,
+		        visibility: [false,true,false,true],
+		        rollPeriod: roll,
+		        showRoller: true
+		        }
+	        );
+                 g.push(g4);
+         } else {
+           $('#gdiv4').empty();
+         }
+         /*
+            g5 = new Dygraph(
+		    document.getElementById("gdivMeanPT"),
+		    "datalogs/mean.csv",
+		        {
+		        title: 'PT100 Mean',
+		        ylabel: 'ADC Reading Mean',
+		        labelsSeperateLines: true,
+		        visibility: [true,false],
+		        rollPeriod: roll,
+		        showRoller: true
+		        }
+	        );
+            g6 = new Dygraph(
+		    document.getElementById("gdivMeanIG"),
+		    "datalogs/mean.csv",
+		        {
+		        title: 'IG Mean',
+		        ylabel: 'ADC Reading Mean',
+		        labelsSeperateLines: true,
+		        visibility: [false,true],
+		        rollPeriod: roll,
+		        showRoller: true
+		        }
+	        );
+		*/
+
+
+        var sync = Dygraph.synchronize(g,  {zoom: true, range: false, selection: true});
+        }
+        </script>
+
+	</body>
+</html>
