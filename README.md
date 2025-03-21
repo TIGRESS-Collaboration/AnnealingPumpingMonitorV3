@@ -6,7 +6,7 @@ This repo contains updated code and documentation for the HPGe pumping station r
 
 The datalogger uses a function called readData.cpp to poll data from the arduino. The polling rate can be changed but is automatically set to 10s. Another function, checkUptime.py, ensures that the data logger continues to run. The data can be viewed on the website in plot and text form. The button functionality is done using php scripts in the action directory. The buttons are all fairly self-explanatory but are outlined clearly in the [previous version repository](https://github.com/TIGRESS-Collaboration/AnnealingPumpingMonitorVer2/blob/master/README.md). A more in depth explanation of the loggers functions can be found here as well.
 
-## Setup instructions
+## Server setup instructions
 
 ### Dependencies
 
@@ -85,6 +85,24 @@ If there seems to be some other issue, you can try viewing the functions of read
 
 It may also be worth looking at the two previous repositories [Version 1](https://github.com/TIGRESS-Collaboration/AnnealingPumpingMonitor), [Version 2](https://github.com/TIGRESS-Collaboration/AnnealingPumpingMonitorVer2/blob/master/README.md) to see if there are any hints there.
 
+## Physical setup instructions
+
+The logger has three physical parts, the arduino, the raspberry pi, and a custom PCB. At some point in the past, many of the PCB were ordered and at the time of the setup of grspi03, there are 6 still unsoldered in a bin somewhere. The components required likely *aren't* in a bin somewhere, but if you are soldering a new one, you will need the following components:
+
+The arduino must be connected via USB to the raspberry pi, and the raspberry pi must be plugged into a power source. Keep this in mind when choosing and setting up the enclosure for the logger. Currently, grspi03 is using [this enclosure](https://www.digikey.ca/en/products/detail/hammond-manufacturing/1598CSGY/153164), although if you use this one you will need to get new end pieces made out of insulating material or get insulated BNC feed-throughs for the inputs, as in principle the temperature inputs are meant to have a different ground than the pressure inputs. This being said, this enclosure is approaching the minimum size that would fit all of the necessary components. In this enclosure, we have set up the arduino and raspberry pi to use 1 inch standoffs, and the PCB to use 1/4 inch standoffs, so that the arduino to raspberry pi cable can run over the PCB.
+
+The arduino must be wired in the following way:
+
+1. 3.3V power socket to the AREF digital socket
+2. RTD1 PCB output to A2 analog input
+3. RTD2 PCB output to A3 analog input
+4. IG PCB output to A5 analog input
+5. TC2 PCB output to A4 analog input
+6. PCB ground screw terminal to GND power socket
+7. PCB 5V screw terminal to 5V power socket
+8. USB cable from arduino to raspberry pi
+
+The PCB input mapping is clearly labeled on the PCB and should not require much further explanation.
 
 
 
